@@ -58,18 +58,16 @@ class Network(object):
     def cost_derivative(self, output_activations, y):
         return (output_activations-y)
 
-    # def SGD(self, training_data, epochs, mini_batch_size, eta, test_data=None):
-
     def evaluate(self, test_data):
         # guarda resultados passando o conjunto de teste pela rede
         # e assume o maior resultado como resposta da rede
-        test_results = [(np.argmax(self.feedforward(x), y)) for (x,y) in test_data]
+        test_results = [(np.argmax(self.feedforward(x)), np.argmax(y)) for (x,y) in test_data]
         n = len(test_data)
         hit = sum(int(x==y) for (x,y) in test_results)
         # retorna taxa de acerto
         return (hit/n)
 
-    def SGD(self, training_data, epochs, mini_batch_size, eta, test_data=None):
+    def SGD(self, training_data, epochs, mini_batch_size, eta, val_data=None):
         n = len(training_data)
         # para cada epoch, embaralha o conjunto de treino, faz mini batches de tamanho definido, recalcula pesos e biases
         for j in xrange(epochs):
@@ -78,8 +76,8 @@ class Network(object):
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch,eta)
             # se houver conjunto de teste, usa a rede atual para ver o hit rate
-            if test_data:
-                print "Epoch {0} - hit rate: {1}".format(j, evaluate(test_data))
+            if val_data:
+                print "Epoch {0} - hit rate: {1}".format(j, evaluate(val_data))
             # senão, a epoch acabou e vamos para a próxima
             else:
                 print "Epoch {0} complete.".format(j)
