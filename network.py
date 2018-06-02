@@ -15,7 +15,7 @@ class Network(object):
 
     def feedforward(self, a):
         for b, w in zip(self.biases, self.weights)
-            a = activation_function(np.dot(w,a)+b)
+            a = layer.activation_function(np.dot(w,a)+b)
         return a
 
     def update_mini_batch(self, mini_batch, eta):
@@ -35,12 +35,12 @@ class Network(object):
         zs = []
         for b, w in zip(self.biases, self.weights):
             z = np.dot(w,activation)+b
-            activation = activation_function(z)
+            activation = layer.activation_function(z)
             zs.append(z)
             activations.append(activation)
 
         # output error (calcula a última camada "na mão")
-        delta = self.cost_derivative(activations[-1], y) * activation_function_prime(z) # (BP1)
+        delta = self.cost_derivative(activations[-1], y) * layer.activation_function_prime(z) # (BP1)
         nabla_b[-1] = delta # (BP3)
         nabla_w[-1] = np.dot(delta, activations[-2].tranpose()) # (BP4)
 
@@ -48,7 +48,7 @@ class Network(object):
         # negativas significa acessar de trás pra frente, o erro é propagado do fim ao começo da rede
         for l in xrange(2, self.num_layers):
             z = zs[-l]
-            afp = activation_function_prime(z)
+            afp = layer.activation_function_prime(z)
             delta = np.dot(self.weights[-l+1].transpose(), delta) * afp # (BP2)
             nabla_b[-l] = delta # (BP3)
             nabla_w[-l] = np.dot(delta, activations[-l-1]. transpose()) # (BP4)
