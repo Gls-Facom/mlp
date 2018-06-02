@@ -15,7 +15,7 @@ class Network(object):
 
     def feedforward(self, a):
         for b, w in zip(self.biases, self.weights)
-            a = activation_function(np.dot(w,a)+b)
+            a = layer.activation_function(np.dot(w,a)+b)
         return a
 
     def update_mini_batch(self, mini_batch, eta):
@@ -35,12 +35,12 @@ class Network(object):
         zs = []
         for b, w in zip(self.biases, self.weights):
             z = np.dot(w,activation)+b
-            activation = activation_function(z)
+            activation = layer.activation_function(z)
             zs.append(z)
             activations.append(activation)
 
         # output error (calcula a última camada "na mão")
-        delta = self.cost_derivative(activations[-1], y) * activation_function_prime(z) # (BP1)
+        delta = self.cost_derivative(activations[-1], y) * layer.activation_function_prime(z) # (BP1)
         nabla_b[-1] = delta # (BP3)
         nabla_w[-1] = np.dot(delta, activations[-2].tranpose()) # (BP4)
 
@@ -48,7 +48,7 @@ class Network(object):
         # negativas significa acessar de trás pra frente, o erro é propagado do fim ao começo da rede
         for l in xrange(2, self.num_layers):
             z = zs[-l]
-            afp = activation_function_prime(z)
+            afp = layer.activation_function_prime(z)
             delta = np.dot(self.weights[-l+1].transpose(), delta) * afp # (BP2)
             nabla_b[-l] = delta # (BP3)
             nabla_w[-l] = np.dot(delta, activations[-l-1]. transpose()) # (BP4)
@@ -58,18 +58,16 @@ class Network(object):
     def cost_derivative(self, output_activations, y):
         return (output_activations-y)
 
-    # def SGD(self, training_data, epochs, mini_batch_size, eta, test_data=None):
-
     def evaluate(self, test_data):
         # guarda resultados passando o conjunto de teste pela rede
         # e assume o maior resultado como resposta da rede
-        test_results = [(np.argmax(self.feedforward(x), y)) for (x,y) in test_data]
+        test_results = [(np.argmax(self.feedforward(x)), np.argmax(y)) for (x,y) in test_data]
         n = len(test_data)
         hit = sum(int(x==y) for (x,y) in test_results)
         # retorna taxa de acerto
         return (hit/n)
 
-    def SGD(self, training_data, epochs, mini_batch_size, eta, test_data=None):
+    def SGD(self, training_data, epochs, mini_batch_size, eta, val_data=None):
         n = len(training_data)
         # para cada epoch, embaralha o conjunto de treino, faz mini batches de tamanho definido, recalcula pesos e biases
         for j in xrange(epochs):
@@ -78,8 +76,8 @@ class Network(object):
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch,eta)
             # se houver conjunto de teste, usa a rede atual para ver o hit rate
-            if test_data:
-                print "Epoch {0} - hit rate: {1}".format(j, evaluate(test_data))
+            if val_data:
+                print "Epoch {0} - hit rate: {1}".format(j, evaluate(val_data))
             # senão, a epoch acabou e vamos para a próxima
             else:
                 print "Epoch {0} complete.".format(j)
