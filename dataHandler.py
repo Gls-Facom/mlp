@@ -13,10 +13,12 @@ class DataHandler():
 		self.batch_counter = 0
 		self.example_counter = 0
 		self.current_miniBatch = None
+		self.data_loaded = False
 
 	def load_training(self, validation=True):
+		""" Loads the train set from disk and splits it into train and validation """
 		self.im, self.lb = self.mndata.load_training()
-
+		self.data_loaded = True
 		indexes = range(0, len(self.im))
 		shuffle(indexes)
 
@@ -27,12 +29,17 @@ class DataHandler():
 		else:
 			self.train_set = indexes
 
+	def load_validation(self):
+		""" Takes the validation set and puts in the current minibatch """
+		self.current_miniBatch = self.val_set
+		self.example_counter = 0
 
 	def get_mini_batches(self, minBatch_size=None, minBatch_num=None):
 		""" Generates a list of random minibatches. It outputs a list of n minibatches of
 			size minBatch_size, or outputs a list of minBatch_num minibatches """
+		if not self.data_loaded:
+			self.load_training()
 
-		self.load_training()
 		k = len(self.train_set)
 
 		if not(minBatch_num is None):
@@ -52,7 +59,7 @@ class DataHandler():
 		return self.mini_batches
 
 	def move_to_next_batch(self):
-		""" Just updates the batch counter and the current minibatch"""
+		""" Just updates the batch counter and the current minibatch """
 		if self.batch_counter > len(self.train_set):
 			self.batch_counter = 0
 		else:
@@ -60,12 +67,14 @@ class DataHandler():
 
 		self.current_miniBatch = self.train_set[self.batch_counter]
 
-	def get_example(self):
-		""" Gets the real index of an example inside the current mini batch"""
+	def get_example(self, update_batch=False):
+		""" Gets the real index of an example inside the current mini batch """
 		ex = self.current_miniBatch[self.example_counter]
 		self.example_counter += 1
 
 		if self.example_counter >= len(self.current_miniBatch):
+			if update_batch == True:
+				self.move_to_next_batch()
 			self.example_counter = 0
 
 		return self.get_example_data(ex)
