@@ -2,21 +2,26 @@
 
 import numpy as np
 import random
+from layer import Layer
+from dataHandler import DataHandler
 
 #como inserir a funcao de ativacao?
 
 class Network(object):
 
-    def __init__(self,sizes):
+    def __init__(self,sizes, dataHandler):
         self.num_layers = len(sizes)
         self.sizes = sizes
         self.biases = [np.random.randn(y,1) for y in sizes[1:]]
         self.weights = [np.random.randn(y,x) for x, y in zip(sizes[:-1], sizes[1:])]
+        self.dataHandler = dataHandler
+        # fazer inicializacao de layers
 
-    def feedforward(self, a):
-        for b, w in zip(self.biases, self.weights)
-            a = layer.activation_function(np.dot(w,a)+b)
-        return a
+    def feedforward(self, a, keep_z=False):
+        self.layer[0].activation = a
+        for layer in self.layer[1:]:
+            layer.update_layer(self.layer[i-1].activation, keep_z)
+        return layer.activation
 
     def update_mini_batch(self, mini_batch, eta):
         nabla_b = [np.zeros(b.shape) for b in self.biases] # nablas terão formato de acordo com seus respectivos layers
@@ -30,28 +35,22 @@ class Network(object):
 
     def backprop(self, x, y):
         # feedforward, passa pela rede indo em direção a ultima camada, calculando os zs e as ativações
-        activation = x
-        activations = [x]
-        zs = []
-        for b, w in zip(self.biases, self.weights):
-            z = np.dot(w,activation)+b
-            activation = layer.activation_function(z)
-            zs.append(z)
-            activations.append(activation)
+        self.feedforward(x, keep_z=True)
+        activation = self.layers[-1].activation
 
         # output error (calcula a última camada "na mão")
-        delta = self.cost_derivative(activations[-1], y) * layer.activation_function_prime(z) # (BP1)
+        delta = self.cost_derivative(activations[-1], y) * self.layers[-1].activation_function(z, prime=True) # (BP1)
         nabla_b[-1] = delta # (BP3)
-        nabla_w[-1] = np.dot(delta, activations[-2].tranpose()) # (BP4)
+        nabla_w[-1] = np.dot(delta, self.layers[-2].activation.tranpose()) # (BP4)
 
         # backpropagate the error, l é usado de forma crescente, mas como acessar posições
         # negativas significa acessar de trás pra frente, o erro é propagado do fim ao começo da rede
         for l in xrange(2, self.num_layers):
             z = zs[-l]
-            afp = layer.activation_function_prime(z)
-            delta = np.dot(self.weights[-l+1].transpose(), delta) * afp # (BP2)
+            afp = self.layers[-l].activation_function(z, prime=True)
+            delta = np.dot(self.layers[-l+1].weights.transpose(), delta) * afp # (BP2)
             nabla_b[-l] = delta # (BP3)
-            nabla_w[-l] = np.dot(delta, activations[-l-1]. transpose()) # (BP4)
+            nabla_w[-l] = np.dot(delta, self.layers[-l-1].activation.transpose()) # (BP4)
         return (nabla_b, nabla_w)
 
 
@@ -72,6 +71,7 @@ class Network(object):
         # para cada epoch, embaralha o conjunto de treino, faz mini batches de tamanho definido, recalcula pesos e biases
         for j in xrange(epochs):
             random.shuffle(training_data)
+            # adaptar com get_mini_batches
             mini_batches = [training_data[k:k+mini_batch_size] for k in xrange(0,n,mini_batch_size)]
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch,eta)
