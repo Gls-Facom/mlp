@@ -9,13 +9,11 @@ from dataHandler import DataHandler
 
 class Network(object):
 
-    def __init__(self,sizes, dataHandler):
+    def __init__(self, sizes, dataHandler, layers):
         self.num_layers = len(sizes)
         self.sizes = sizes
-        self.biases = [np.random.randn(y,1) for y in sizes[1:]]
-        self.weights = [np.random.randn(y,x) for x, y in zip(sizes[:-1], sizes[1:])]
         self.dataHandler = dataHandler
-        # fazer inicializacao de layers
+        self.layers = layer.create_layers(self.sizes)
 
     def feedforward(self, a, keep_z=False):
         self.layer[0].activation = a
