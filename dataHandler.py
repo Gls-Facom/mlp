@@ -39,6 +39,8 @@ class DataHandler():
 			size minBatch_size, or outputs a list of minBatch_num minibatches """
 		if not self.data_loaded:
 			self.load_training()
+		else:
+			shuffle(self.train_set)
 
 		k = len(self.train_set)
 

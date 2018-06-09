@@ -12,8 +12,6 @@ class Network(object):
     def __init__(self,sizes, dataHandler):
         self.num_layers = len(sizes)
         self.sizes = sizes
-        self.biases = [np.random.randn(y,1) for y in sizes[1:]]
-        self.weights = [np.random.randn(y,x) for x, y in zip(sizes[:-1], sizes[1:])]
         self.dataHandler = dataHandler
         # fazer inicializacao de layers
 
@@ -24,14 +22,22 @@ class Network(object):
         return layer.activation
 
     def update_mini_batch(self, mini_batch, eta):
-        nabla_b = [np.zeros(b.shape) for b in self.biases] # nablas terão formato de acordo com seus respectivos layers
-        nabla_w = [np.zeros(w.shape) for w in self.weights]
-        for x, y in mini_batch: # para cada exemplo de treino da mini batch, calcula o ajuste necessário
+        # nablas terão formato de acordo com seus respectivos layers
+        nabla_b = [np.zeros(layer.bias.shape) for layer in self.layers]
+        nabla_w = [np.zeros(layer.weight.shape) for layer in self.layers]
+        mini_batch_length = len(mini_batch)
+
+        for k in mini_batch_length: # para cada exemplo de treino da mini batch, calcula o ajuste necessário
+            x,y = self.dataHandler.get_example(update_batch=True)
             delta_nabla_b, delta_nabla_w = self.backprop(x,y)
             nabla_b = [nb+dnb for nb,dnb in zip(nabla_b, delta_nabla_b)] # dC/db
             nabla_w = [nw+dnw for nw,dnw in zip(nabla_w, delta_nabla_w)] # dC/dw
+
         self.weights = [w-(eta/len(mini_batch))*nw for w, nw in zip(self.weights, nabla_w)] # atualiza pesos e biases
-        self.biases = [b-(eta/len(mini_batch))*nb for b, nb in zip(self.biases, nabla_b)]
+        for layer, nw, nb in zip(self.layers, nabla_w, nabla_b):
+            #update weight
+            self.layer.weight -= (eta/mini_batch_length)*nw
+            self.layer.bias   -= (eta/mini_batch_length)*nb
 
     def backprop(self, x, y):
         # feedforward, passa pela rede indo em direção a ultima camada, calculando os zs e as ativações
@@ -71,10 +77,11 @@ class Network(object):
         # para cada epoch, embaralha o conjunto de treino, faz mini batches de tamanho definido, recalcula pesos e biases
         for j in xrange(epochs):
             random.shuffle(training_data)
-            # adaptar com get_mini_batches
-            mini_batches = [training_data[k:k+mini_batch_size] for k in xrange(0,n,mini_batch_size)]
+            # each mini_batch contains a list of indexes, each index corresponds
+            # to an example
+            mini_batches = self.dataHandler.get_mini_batches()
             for mini_batch in mini_batches:
-                self.update_mini_batch(mini_batch,eta)
+                self.update_mini_batch(mini_batch, eta)
             # se houver conjunto de teste, usa a rede atual para ver o hit rate
             if val_data:
                 print "Epoch {0} - hit rate: {1}".format(j, evaluate(val_data))
