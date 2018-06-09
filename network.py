@@ -27,16 +27,15 @@ class Network(object):
         nabla_w = [np.zeros(layer.weight.shape) for layer in self.layers]
         mini_batch_length = len(mini_batch)
 
-        for k in mini_batch_length: # para cada exemplo de treino da mini batch, calcula o ajuste necessário
+        for k in xrange(mini_batch_length): # para cada exemplo de treino da mini batch, calcula o ajuste necessário
             x,y = self.dataHandler.get_example(update_batch=True)
             delta_nabla_b, delta_nabla_w = self.backprop(x,y)
             nabla_b = [nb+dnb for nb,dnb in zip(nabla_b, delta_nabla_b)] # dC/db
             nabla_w = [nw+dnw for nw,dnw in zip(nabla_w, delta_nabla_w)] # dC/dw
 
-        for layer, nw, nb in zip(self.layers, nabla_w, nabla_b):
-            #update weight
-            self.layer.weight -= (eta/mini_batch_length)*nw
-            self.layer.bias   -= (eta/mini_batch_length)*nb
+        for i, (nw, nb) in enumerate(zip(nabla_w, nabla_b)):
+            self.layers[i].weight -= (eta/mini_batch_length)*nw # update weight
+            self.layers[i].bias   -= (eta/mini_batch_length)*nb # update bias
 
     def backprop(self, x, y):
         # feedforward, passa pela rede indo em direção a ultima camada, calculando os zs e as ativações
@@ -75,10 +74,9 @@ class Network(object):
         n = len(training_data)
         # para cada epoch, embaralha o conjunto de treino, faz mini batches de tamanho definido, recalcula pesos e biases
         for j in xrange(epochs):
-            random.shuffle(training_data)
             # each mini_batch contains a list of indexes, each index corresponds
             # to an example
-            mini_batches = self.dataHandler.get_mini_batches()
+            mini_batches = self.dataHandler.get_mini_batches(minBatch_size=mini_batch_size)
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch, eta)
             # se houver conjunto de teste, usa a rede atual para ver o hit rate
