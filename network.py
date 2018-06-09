@@ -2,7 +2,7 @@
 
 import numpy as np
 import random
-from layer import Layer
+import layer
 from dataHandler import DataHandler
 
 #como inserir a funcao de ativacao?
@@ -16,9 +16,9 @@ class Network(object):
         self.layers = layer.create_layers(self.sizes)
 
     def feedforward(self, a, keep_z=False):
-        self.layer[0].activation = a
+        self.layers[0].activation = a
         for layer in self.layer[1:]:
-            layer.update_layer(self.layer[i-1].activation, keep_z)
+            layer.update_layer(self.layers[i-1].activation, keep_z)
         return layer.activation
 
     def update_mini_batch(self, mini_batch, eta):
