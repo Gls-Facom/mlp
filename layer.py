@@ -16,3 +16,14 @@ class Layer:
         if keep_z == True:
             self.z = z
         return self.activation
+
+def create_layers(sizes):
+    layers = []
+    weight = []
+    bieases = []
+    for s in sizes:
+        weights = [np.random.randn(y,x) for x, y in zip(sizes[:-1], sizes[1:])]
+        biases = [np.random.randn(y,1) for y in sizes[1:]]
+        layer = Layer(weight,bias, None)#o terceiro argumento é a função de ativação, por enquanto ta None pq a gnt ta perdido
+        layers.append(layer)
+    return layers
