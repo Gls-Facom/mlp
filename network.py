@@ -33,7 +33,6 @@ class Network(object):
             nabla_b = [nb+dnb for nb,dnb in zip(nabla_b, delta_nabla_b)] # dC/db
             nabla_w = [nw+dnw for nw,dnw in zip(nabla_w, delta_nabla_w)] # dC/dw
 
-        self.weights = [w-(eta/len(mini_batch))*nw for w, nw in zip(self.weights, nabla_w)] # atualiza pesos e biases
         for layer, nw, nb in zip(self.layers, nabla_w, nabla_b):
             #update weight
             self.layer.weight -= (eta/mini_batch_length)*nw
