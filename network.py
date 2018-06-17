@@ -4,6 +4,7 @@ import numpy as np
 import random
 import layer
 from dataHandler import DataHandler
+from json_handler import JsonHandler
 
 #como inserir a funcao de ativacao?
 
@@ -64,6 +65,8 @@ class Network(object):
     def evaluate(self, test_data):
         # guarda resultados passando o conjunto de teste pela rede
         # e assume o maior resultado como resposta da rede
+        test_results = []
+        #TODO: fazer essa caceta certo
         test_results = [(np.argmax(self.feedforward(x)), np.argmax(y)) for (x,y) in test_data]
         n = len(test_data)
         hit = sum(int(x==y) for (x,y) in test_results)
@@ -81,7 +84,13 @@ class Network(object):
                 self.update_mini_batch(mini_batch, eta)
             # se houver conjunto de teste, usa a rede atual para ver o hit rate
             if val_data:
-                print "Epoch {0} - hit rate: {1}".format(j, evaluate(val_data))
+                print "Epoch {0} - hit rate: {1}".format(j, evaluate(self.dataHandler.val_set))
             # senão, a epoch acabou e vamos para a próxima
             else:
                 print "Epoch {0} complete.".format(j)
+
+    def save_learning(self, file_name):
+        """ Saves the weights and bias in a file """
+        #TODO: TERMINAR ESSE KARAI
+        weights = {}
+        bias = {}
