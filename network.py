@@ -10,7 +10,7 @@ from json_handler import JsonHandler
 
 class Network(object):
 
-    def __init__(self, sizes, dataHandler, layers):
+    def __init__(self, sizes, dataHandler):
         self.num_layers = len(sizes)
         self.sizes = sizes
         self.dataHandler = dataHandler
