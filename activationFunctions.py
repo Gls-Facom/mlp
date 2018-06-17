@@ -30,13 +30,10 @@ def leaky_relu(x, prime):
 	if not prime:
 		if x < 0:
 			return 0.01*x
-		else
+		else:
 			return x
 	else:
 		if x < 0:
 			return 0.01
 		else:
 			return 1
-
-
-

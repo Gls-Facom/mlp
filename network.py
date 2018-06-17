@@ -1,10 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 import numpy as np
 import random
 import layer
 from dataHandler import DataHandler
-from json_handler import JsonHandler
 
 #como inserir a funcao de ativacao?
 
@@ -18,17 +18,19 @@ class Network(object):
 
     def feedforward(self, a, keep_z=False):
         self.layers[0].activation = a
-        for layer in self.layer[1:]:
+        i = 1
+        for layer in self.layers[1:]:
             layer.update_layer(self.layers[i-1].activation, keep_z)
+            i +=1
         return layer.activation
 
     def update_mini_batch(self, mini_batch, eta):
-        # nablas terao formato de acordo com seus respectivos layers
+        # nablas terão formato de acordo com seus respectivos layers
         nabla_b = [np.zeros(layer.bias.shape) for layer in self.layers]
         nabla_w = [np.zeros(layer.weight.shape) for layer in self.layers]
         mini_batch_length = len(mini_batch)
 
-        for k in xrange(mini_batch_length): # para cada exemplo de treino da mini batch, calcula o ajuste necessario
+        for k in xrange(mini_batch_length): # para cada exemplo de treino da mini batch, calcula o ajuste necessário
             x,y = self.dataHandler.get_example(update_batch=True)
             delta_nabla_b, delta_nabla_w = self.backprop(x,y)
             nabla_b = [nb+dnb for nb,dnb in zip(nabla_b, delta_nabla_b)] # dC/db
@@ -39,7 +41,7 @@ class Network(object):
             self.layers[i].bias   -= (eta/mini_batch_length)*nb # update bias
 
     def backprop(self, x, y):
-        # feedforward, passa pela rede indo em direção a ultima camada, calculando os zs e as ativacoes
+        # feedforward, passa pela rede indo em direção a ultima camada, calculando os zs e as ativações
         self.feedforward(x, keep_z=True)
         activation = self.layers[-1].activation
 
@@ -65,16 +67,14 @@ class Network(object):
     def evaluate(self, test_data):
         # guarda resultados passando o conjunto de teste pela rede
         # e assume o maior resultado como resposta da rede
-        test_results = []
-        #TODO: fazer essa caceta certo
         test_results = [(np.argmax(self.feedforward(x)), np.argmax(y)) for (x,y) in test_data]
         n = len(test_data)
         hit = sum(int(x==y) for (x,y) in test_results)
         # retorna taxa de acerto
         return (hit/n)
 
-    def SGD(self, training_data, epochs, mini_batch_size, eta, val_data=False):
-        n = len(training_data)
+    def SGD(self, training_data, epochs, mini_batch_size, eta, val_data=None):
+        # n = len(training_data)
         # para cada epoch, embaralha o conjunto de treino, faz mini batches de tamanho definido, recalcula pesos e biases
         for j in xrange(epochs):
             # each mini_batch contains a list of indexes, each index corresponds
@@ -84,26 +84,7 @@ class Network(object):
                 self.update_mini_batch(mini_batch, eta)
             # se houver conjunto de teste, usa a rede atual para ver o hit rate
             if val_data:
-                print "Epoch {0} - hit rate: {1}".format(j, evaluate(self.dataHandler.val_set))
+                print "Epoch {0} - hit rate: {1}".format(j, evaluate(val_data))
             # senão, a epoch acabou e vamos para a próxima
             else:
                 print "Epoch {0} complete.".format(j)
-
-    def save_learning(self, file_name):
-        """ Saves the weights and bias in a file """
-        params = {}
-
-        for i, layer in enumerate(self.layers):
-            params['layer'+str(i)+'.w'] = layer.weight.tolist()
-            params['layer'+str(i)+'.b'] = layer.bias.tolist()
-
-        JsonHandler.write(params, file_name)
-
-    def load_learning(self, file_name):
-        params = json_handler.read(file_name)
-
-        num_layers = len(params) / 2
-
-        for i in xrange(num_layers):
-            self.layers[i].weight = np.asarray(params['layer'+str(i)+'.w'])
-            self.layers[i].bias = np.asarray(params['layer'+str(i)+'.b'])

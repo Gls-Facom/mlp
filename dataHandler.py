@@ -1,7 +1,9 @@
-#/usr/bin/python
+# -*- coding: utf-8 -*-
+
 from mnist import MNIST
 import numpy as np
 from random import shuffle
+
 
 class DataHandler():
 
