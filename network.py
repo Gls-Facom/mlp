@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+# -*- coding: utf-8 -*-
+
 import numpy as np
 import random
 import layer
@@ -10,11 +12,13 @@ from dataHandler import DataHandler
 
 class Network(object):
 
-    def __init__(self, sizes, dataHandler):
+    def __init__(self, sizes, dataHandler, layers, save_rate, checkpoints_dir):
         self.num_layers = len(sizes)
         self.sizes = sizes
         self.dataHandler = dataHandler
         self.layers = layer.create_layers(self.sizes)
+        self.save_rate = save_rate
+        self.checkpoints_dir = checkpoints_dir
 
     def feedforward(self, a, keep_z=False):
         self.layers[0].activation = a
@@ -82,6 +86,10 @@ class Network(object):
             mini_batches = self.dataHandler.get_mini_batches(minBatch_size=mini_batch_size)
             for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch, eta)
+
+            if j > 0 and j % self.save_rate == 0:
+                save_learning(self.checkpoints_dir + 'epoch' + str(j) + '.json')
+
             # se houver conjunto de teste, usa a rede atual para ver o hit rate
             if val_data:
                 print "Epoch {0} - hit rate: {1}".format(j, evaluate(val_data))
