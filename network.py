@@ -88,7 +88,7 @@ class Network(object):
                 self.update_mini_batch(mini_batch, eta)
 
             if j > 0 and j % self.save_rate == 0:
-                save_learning(self.checkpoints_dir + 'epoch' + str(j))
+                save_learning(self.checkpoints_dir + 'epoch' + str(j) + '.json')
 
             # se houver conjunto de teste, usa a rede atual para ver o hit rate
             if val_data:
