@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
 import numpy as np
 import random
 import layer
@@ -23,12 +23,12 @@ class Network(object):
         return layer.activation
 
     def update_mini_batch(self, mini_batch, eta):
-        # nablas terão formato de acordo com seus respectivos layers
+        # nablas terao formato de acordo com seus respectivos layers
         nabla_b = [np.zeros(layer.bias.shape) for layer in self.layers]
         nabla_w = [np.zeros(layer.weight.shape) for layer in self.layers]
         mini_batch_length = len(mini_batch)
 
-        for k in xrange(mini_batch_length): # para cada exemplo de treino da mini batch, calcula o ajuste necessário
+        for k in xrange(mini_batch_length): # para cada exemplo de treino da mini batch, calcula o ajuste necessario
             x,y = self.dataHandler.get_example(update_batch=True)
             delta_nabla_b, delta_nabla_w = self.backprop(x,y)
             nabla_b = [nb+dnb for nb,dnb in zip(nabla_b, delta_nabla_b)] # dC/db
@@ -39,7 +39,7 @@ class Network(object):
             self.layers[i].bias   -= (eta/mini_batch_length)*nb # update bias
 
     def backprop(self, x, y):
-        # feedforward, passa pela rede indo em direção a ultima camada, calculando os zs e as ativações
+        # feedforward, passa pela rede indo em direção a ultima camada, calculando os zs e as ativacoes
         self.feedforward(x, keep_z=True)
         activation = self.layers[-1].activation
 
@@ -73,7 +73,7 @@ class Network(object):
         # retorna taxa de acerto
         return (hit/n)
 
-    def SGD(self, training_data, epochs, mini_batch_size, eta, val_data=None):
+    def SGD(self, training_data, epochs, mini_batch_size, eta, val_data=False):
         n = len(training_data)
         # para cada epoch, embaralha o conjunto de treino, faz mini batches de tamanho definido, recalcula pesos e biases
         for j in xrange(epochs):

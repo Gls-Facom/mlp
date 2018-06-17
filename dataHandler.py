@@ -1,3 +1,4 @@
+#/usr/bin/python
 from mnist import MNIST
 import numpy as np
 from random import shuffle
