@@ -91,6 +91,19 @@ class Network(object):
 
     def save_learning(self, file_name):
         """ Saves the weights and bias in a file """
-        #TODO: TERMINAR ESSE KARAI
-        weights = {}
-        bias = {}
+        params = {}
+
+        for i, layer in enumerate(self.layers):
+            params['layer'+str(i)+'.w'] = layer.weight.tolist()
+            params['layer'+str(i)+'.b'] = layer.bias.tolist()
+
+        JsonHandler.write(params, file_name)
+
+    def load_learning(self, file_name):
+        params = json_handler.read(file_name)
+
+        num_layers = len(params) / 2
+
+        for i in xrange(num_layers):
+            self.layers[i].weight = np.asarray(params['layer'+str(i)+'.w'])
+            self.layers[i].bias = np.asarray(params['layer'+str(i)+'.b'])
