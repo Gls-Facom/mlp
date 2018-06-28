@@ -12,7 +12,7 @@ from dataHandler import DataHandler
 
 class Network(object):
 
-    def __init__(self, sizes, dataHandler, layers, save_rate, checkpoints_dir):
+    def __init__(self, sizes, dataHandler, save_rate, checkpoints_dir):
         self.num_layers = len(sizes)
         self.sizes = sizes
         self.dataHandler = dataHandler
