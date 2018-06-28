@@ -1,14 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# -*- coding: utf-8 -*-
-
 import numpy as np
 import random
 import layer
 from dataHandler import DataHandler
-
-#como inserir a funcao de ativacao?
+from json_handler import JsonHandler
 
 class Network(object):
 
@@ -88,7 +85,7 @@ class Network(object):
                 self.update_mini_batch(mini_batch, eta)
 
             if j > 0 and j % self.save_rate == 0:
-                save_learning(self.checkpoints_dir + 'epoch' + str(j) + '.json')
+                self.save_learning(self.checkpoints_dir + 'epoch' + str(j) + '.json')
 
             # se houver conjunto de teste, usa a rede atual para ver o hit rate
             if val_data:
@@ -96,3 +93,18 @@ class Network(object):
             # senão, a epoch acabou e vamos para a próxima
             else:
                 print "Epoch {0} complete.".format(j)
+
+    def save_learning(self, ckpt_name):
+        # Dict to save the params from the checkpoint
+        ckpt = {}
+        weights = {}
+        biases = {}
+
+        for i,layer in enumerate(self.layers):
+            weights['l'+str(i)] = layer.weight.tolist();
+            biases['l'+str(i)] = layer.bias.tolist();
+
+
+        ckpt = {"weights": weights, "biases": biases}
+
+        JsonHandler.write(ckpt, ckpt_name)
