@@ -10,7 +10,7 @@ import activationFunctions
 if __name__ == '__main__':
     EPOCHS = 100
     ETA = 0.001
-    PATH = "mnist_dataset"
+    PATH = "../mnist"
     CKPT_DIR = "ckpt"
     MBS = 100 #mini_batch_size
 
@@ -18,5 +18,5 @@ if __name__ == '__main__':
     dataHandler.load_training()
 
     sizes = [784, 16,16,10]
-    network = Network(sizes, dataHandler, EPOCHS/10.0, CKPT_DIR)
+    network = Network(sizes, dataHandler, EPOCHS/10.0, CKPT_DIR, activationFunctions.relu)
     network.SGD(dataHandler, EPOCHS, MBS, ETA, False)

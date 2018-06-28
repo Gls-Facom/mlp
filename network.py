@@ -9,16 +9,16 @@ from json_handler import JsonHandler
 
 class Network(object):
 
-    def __init__(self, sizes, dataHandler, save_rate, checkpoints_dir):
+    def __init__(self, sizes, dataHandler, save_rate, checkpoints_dir, activation_function):
         self.num_layers = len(sizes)
         self.sizes = sizes
         self.dataHandler = dataHandler
-        self.layers = layer.create_layers(self.sizes)
+        self.layers = layer.create_layers(self.sizes, activation_function)
         self.save_rate = save_rate
         self.checkpoints_dir = checkpoints_dir
 
     def feedforward(self, a, keep_z=False):
-        self.layers[0].activation = a
+        self.layers[0].activation = a.reshape(a.shape[0],1)
         i = 1
         for layer in self.layers[1:]:
             layer.update_layer(self.layers[i-1].activation, keep_z)
@@ -27,8 +27,8 @@ class Network(object):
 
     def update_mini_batch(self, mini_batch, eta):
         # nablas terão formato de acordo com seus respectivos layers
-        nabla_b = [np.zeros(layer.bias.shape) for layer in self.layers]
-        nabla_w = [np.zeros(layer.weight.shape) for layer in self.layers]
+        nabla_b = [np.zeros(layer.bias.shape) for layer in self.layers[1:]]
+        nabla_w = [np.zeros(layer.weight.shape) for layer in self.layers[1:]]
         mini_batch_length = len(mini_batch)
 
         for k in xrange(mini_batch_length): # para cada exemplo de treino da mini batch, calcula o ajuste necessário
@@ -37,9 +37,9 @@ class Network(object):
             nabla_b = [nb+dnb for nb,dnb in zip(nabla_b, delta_nabla_b)] # dC/db
             nabla_w = [nw+dnw for nw,dnw in zip(nabla_w, delta_nabla_w)] # dC/dw
 
-        for i, (nw, nb) in enumerate(zip(nabla_w, nabla_b)):
-            self.layers[i].weight -= (eta/mini_batch_length)*nw # update weight
-            self.layers[i].bias   -= (eta/mini_batch_length)*nb # update bias
+        for i, (nw, nb) in enumerate(zip(nabla_w, nabla_b)):            
+            self.layers[i+1].weight -= (eta/mini_batch_length)*nw # update weight
+            self.layers[i+1].bias   -= (eta/mini_batch_length)*nb # update bias
 
     def backprop(self, x, y):
         # feedforward, passa pela rede indo em direção a ultima camada, calculando os zs e as ativações
@@ -47,16 +47,21 @@ class Network(object):
         activation = self.layers[-1].activation
 
         # output error (calcula a última camada "na mão")
-        delta = self.cost_derivative(activations[-1], y) * self.layers[-1].activation_function(z, prime=True) # (BP1)
+        nabla_b = []
+        nabla_w = []
+        for l in self.layers[1:]:
+            nabla_b.append(np.zeros(l.bias.shape))
+            nabla_w.append(np.zeros(l.weight.shape))
+        delta = self.cost_derivative(activation, y) * self.layers[-1].activation_function(self.layers[-1].z, prime=True) # (BP1)
         nabla_b[-1] = delta # (BP3)
-        nabla_w[-1] = np.dot(delta, self.layers[-2].activation.tranpose()) # (BP4)
+        nabla_w[-1] = np.dot(delta, self.layers[-2].activation.transpose()) # (BP4)
 
         # backpropagate the error, l é usado de forma crescente, mas como acessar posições
         # negativas significa acessar de trás pra frente, o erro é propagado do fim ao começo da rede
         for l in xrange(2, self.num_layers):
-            z = zs[-l]
+            z = self.layers[-l].z
             afp = self.layers[-l].activation_function(z, prime=True)
-            delta = np.dot(self.layers[-l+1].weights.transpose(), delta) * afp # (BP2)
+            delta = np.dot(self.layers[-l+1].weight.transpose(), delta) * afp # (BP2)
             nabla_b[-l] = delta # (BP3)
             nabla_w[-l] = np.dot(delta, self.layers[-l-1].activation.transpose()) # (BP4)
         return (nabla_b, nabla_w)
