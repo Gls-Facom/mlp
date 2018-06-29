@@ -7,8 +7,8 @@ import numpy as np
 class Layer:
     def __init__(self, weight, bias, activation_function, size):
         self.activation = None
-        self.weight = np.array(weight)
-        self.bias = np.array(bias)
+        self.weight = np.asarray(weight)
+        self.bias = np.asarray(bias)
         self.activation_function = activation_function
         self.z = []
         self.size = size
@@ -31,6 +31,6 @@ def create_layers(sizes, activation_function):
     layers.append(layer)
     for i in xrange(len(sizes[1:])):
         layer = Layer(weights[i],biases[i], activation_function, sizes[i])
-        layers.append(layer)        
+        layers.append(layer)
 
     return layers

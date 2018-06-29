@@ -2,20 +2,20 @@ import numpy as np
 
 def sigmoid(x, prime):
     if not prime:
-        ret =  np.array(1/(1+np.exp(-x)))
+        ret =  np.array(1.0/(1.0+np.exp(-x)))
         return ret
     else:
         sig = sigmoid(x, False)
-        ret = np.array(sig*(1-sig))
+        ret = np.array(sig*(1.0-sig))
         return ret
 
 def relu(x, prime):
     ret = np.zeros(len(x)).reshape(len(x),1)
     if not prime:
-        return np.maximum(x,0)
+        return np.maximum(x,0.0)
     else:
-        ret[x<0] = 0
-        ret[x>=0] = 1
+        ret[x<0.0] = 0.0
+        ret[x>=0.0] = 1.0
         return ret
 
 def tanh(x, prime):
@@ -23,7 +23,7 @@ def tanh(x, prime):
         ret = np.array(np.tanh(x))
         return ret
     else:
-        ret - np.array(1-(np.tanh(x))^2)
+        ret - np.array(1.0-(np.tanh(x))^2)
         return ret
 
 #terminar a leaky relu para array !!!!!!!!!!!!!!!!!!!!!!!

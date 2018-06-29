@@ -6,17 +6,20 @@ from dataHandler import DataHandler
 from network import Network
 import layer
 import activationFunctions
+import mnist_loader
 
 if __name__ == '__main__':
-    EPOCHS = 100
-    ETA = 0.02
-    PATH = "mnist/"
+    EPOCHS = 1000
+    ETA = 1.0
+    PATH = "../mnist/"
     CKPT_DIR = "./ckpt/"
-    MBS = 5000 #mini_batch_size
+    MBS = 10 #mini_batch_size
+    training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
+    # print "treino", training_data
 
     dataHandler = DataHandler(PATH)
     dataHandler.load_training()
 
     sizes = [784, 16,16,10]
-    network = Network(sizes, dataHandler, EPOCHS/10.0, CKPT_DIR, activationFunctions.relu)
-    network.SGD(dataHandler, EPOCHS, MBS, ETA, True)
+    network = Network(sizes, EPOCHS/10.0, CKPT_DIR, activationFunctions.sigmoid)
+    network.SGD(training_data, EPOCHS, MBS, ETA, test_data)

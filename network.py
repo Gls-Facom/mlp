@@ -4,15 +4,14 @@
 import numpy as np
 import random
 import layer
-from dataHandler import DataHandler
 from json_handler import JsonHandler
+
 
 class Network(object):
 
-    def __init__(self, sizes, dataHandler, save_rate, checkpoints_dir, activation_function):
+    def __init__(self, sizes, save_rate, checkpoints_dir, activation_function):
         self.num_layers = len(sizes)
         self.sizes = sizes
-        self.dataHandler = dataHandler
         self.layers = layer.create_layers(self.sizes, activation_function)
         self.save_rate = save_rate
         self.checkpoints_dir = checkpoints_dir
@@ -32,8 +31,8 @@ class Network(object):
         nabla_w = [np.zeros(layer.weight.shape) for layer in self.layers[1:]]
         mini_batch_length = len(mini_batch)
 
-        for k in xrange(mini_batch_length): # para cada exemplo de treino da mini batch, calcula o ajuste necessário
-            x,y = self.dataHandler.get_example(update_batch=True)
+        for x,y in mini_batch: # para cada exemplo de treino da mini batch, calcula o ajuste necessário
+            # x,y = self.dataHandler.get_example(update_batch=False)
             delta_nabla_b, delta_nabla_w = self.backprop(x,y)
             nabla_b = [nb+dnb for nb,dnb in zip(nabla_b, delta_nabla_b)] # dC/db
             nabla_w = [nw+dnw for nw,dnw in zip(nabla_w, delta_nabla_w)] # dC/dw
@@ -69,15 +68,18 @@ class Network(object):
 
 
     def cost_derivative(self, output_activations, y):
-        return (output_activations-y)
+        res = np.subtract(output_activations, y)
+        # return (output_activations-y)
+        return res
 
     def evaluate(self, test_data):
         # guarda resultados passando o conjunto de teste pela rede
         # e assume o maior resultado como resposta da rede
         test_results = []
-        for i in test_data:
-            x,y = self.dataHandler.get_example(i)
-            test_results.append((np.argmax(self.feedforward(x)), np.argmax(y)))
+        # for i in test_data:
+            # x,y = self.dataHandler.get_example(i)
+            # test_results.append((np.argmax(self.feedforward(x)), np.argmax(y)))
+        test_results = [(np.argmax(self.feedforward(x)), y) for (x, y) in test_data]
         # test_results = [(np.argmax(self.feedforward(x)), np.argmax(y)) for (x,y) in test_data]
         n = len(test_data)
         hit = sum(int(x==y) for (x,y) in test_results)
@@ -90,17 +92,24 @@ class Network(object):
         for j in xrange(epochs):
             # each mini_batch contains a list of indexes, each index corresponds
             # to an example
-            mini_batches = self.dataHandler.get_mini_batches(minBatch_size=mini_batch_size)
-            for i,mini_batch in enumerate(mini_batches):
+            # mini_batches = self.dataHandler.get_mini_batches(minBatch_size=mini_batch_size)
+            # for i,mini_batch in enumerate(mini_batches):
+            #     self.update_mini_batch(mini_batch, eta)
+                # print "Epoch ", j, "mini batch ",i
+            n = len(training_data)
+            mini_batches = [training_data[k:k+mini_batch_size] for k in xrange(0, n, mini_batch_size)]
+            i = 1
+            for mini_batch in mini_batches:
                 self.update_mini_batch(mini_batch, eta)
-                print "Epoch ", j, "mini batch ",i
+                # print "Epoch ", j, "mini batch ",i
+                i+=1
 
             if j > 0 and j % self.save_rate == 0:
                 self.save_learning(self.checkpoints_dir + 'epoch' + str(j) + '.json')
 
             # se houver conjunto de teste, usa a rede atual para ver o hit rate
-            if val_data:
-                print "Epoch {0} - hit rate: {1}".format(j, self.evaluate(self.dataHandler.val_set))
+            if val_data != None:
+                print "Epoch {0} - hit rate: {1}".format(j, self.evaluate(val_data))
             # senão, a epoch acabou e vamos para a próxima
             else:
                 print "Epoch {0} complete.".format(j)
