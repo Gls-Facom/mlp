@@ -45,15 +45,19 @@ class Network(object):
     def backprop(self, x, y):
         # feedforward, passa pela rede indo em direção a ultima camada, calculando os zs e as ativações
         self.feedforward(x, keep_z=True)
-        activation = self.layers[-1].activation
 
         # output error (calcula a última camada "na mão")
         nabla_b = []
         nabla_w = []
+
         for l in self.layers[1:]:
             nabla_b.append(np.zeros(l.bias.shape))
             nabla_w.append(np.zeros(l.weight.shape))
-        delta = self.cost_derivative(activation, y) * self.layers[-1].activation_function(self.layers[-1].z, prime=True) # (BP1)
+
+        activation = self.layers[-1].activation
+        z = self.layers[-1].z
+
+        delta = self.cost_derivative(activation, y) * self.layers[-1].activation_function(z, prime=True) # (BP1)
         nabla_b[-1] = delta # (BP3)
         nabla_w[-1] = np.dot(delta, self.layers[-2].activation.transpose()) # (BP4)
 
@@ -78,6 +82,7 @@ class Network(object):
         for i in test_data:
             x,y = self.dataHandler.get_example(i)
             test_results.append((np.argmax(self.feedforward(x)), np.argmax(y)))
+
         # test_results = [(np.argmax(self.feedforward(x)), np.argmax(y)) for (x,y) in test_data]
         n = len(test_data)
         hit = sum(int(x==y) for (x,y) in test_results)
@@ -93,7 +98,6 @@ class Network(object):
             mini_batches = self.dataHandler.get_mini_batches(minBatch_size=mini_batch_size)
             for i,mini_batch in enumerate(mini_batches):
                 self.update_mini_batch(mini_batch, eta)
-                print "Epoch ", j, "mini batch ",i
 
             if j > 0 and j % self.save_rate == 0:
                 self.save_learning(self.checkpoints_dir + 'epoch' + str(j) + '.json')
@@ -119,3 +123,14 @@ class Network(object):
         ckpt = {"weights": weights, "biases": biases}
 
         self.json_handler.write(ckpt, ckpt_name)
+
+    def load_learning(self, ckpt_file):
+        # Loads the parameters from the checkpoint file
+        params = json_handler.read(ckpt_file)
+        weights = params{'weights'}
+        biases = params{'biases'}
+
+        # Fills the layers with the saved learning
+        for i in xrange(len(self.layers)):
+            self.layers[i].weight = np.asarray(weights['l'+str(i)]).astype("float64")
+            self.layers[i].bias = np.asarray(biases['l'+str(i)]).astype("float64")

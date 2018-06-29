@@ -87,9 +87,10 @@ class DataHandler():
 
 
     def get_example_data(self, example):
-        y = 10 * [0]
-        y[self.lb[example]] = 1
-        return np.asarray(self.im[example]), np.asarray(y).reshape(len(y),1)
+        y = 10 * [0.0]
+        y[self.lb[example]] = 1.0
+        maximum = float(max(self.im[example]))
+        return np.array(self.im[example]).reshape(28*28, 1)/maximum, np.array(y).reshape(10,1)
 
 if __name__ == '__main__':
     data = DataHandler('./mnist_dataset')
