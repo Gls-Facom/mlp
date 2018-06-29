@@ -7,9 +7,6 @@ class Digits:
     def __init__(self,img):
         self.drawing = False # true if mouse is pressed
         self.ix,iy = -1,-1
-        self.count = 0
-        self.training = True
-        self.drawing = False
         self.img = img
 
     def draw_circle(self,event,x,y,flags,param):
