@@ -66,7 +66,7 @@ class DataHandler():
 
     def move_to_next_batch(self):
         """ Just updates the batch counter and the current minibatch """
-        if self.batch_counter > len(self.train_set):
+        if self.batch_counter == len(self.mini_batches)-1:
             self.batch_counter = 0
         else:
             self.batch_counter += 1
@@ -74,7 +74,7 @@ class DataHandler():
         self.current_miniBatch = self.mini_batches[self.batch_counter]
 
     def get_example(self, update_batch=False):
-        """ Gets the real index of an example inside the current mini batch """        
+        """ Gets the real index of an example inside the current mini batch """
         ex = self.current_miniBatch[self.example_counter]
         self.example_counter += 1
 

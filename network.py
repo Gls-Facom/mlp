@@ -16,6 +16,7 @@ class Network(object):
         self.layers = layer.create_layers(self.sizes, activation_function)
         self.save_rate = save_rate
         self.checkpoints_dir = checkpoints_dir
+        self.json_handler = JsonHandler()
 
     def feedforward(self, a, keep_z=False):
         self.layers[0].activation = a.reshape(a.shape[0],1)
@@ -37,7 +38,7 @@ class Network(object):
             nabla_b = [nb+dnb for nb,dnb in zip(nabla_b, delta_nabla_b)] # dC/db
             nabla_w = [nw+dnw for nw,dnw in zip(nabla_w, delta_nabla_w)] # dC/dw
 
-        for i, (nw, nb) in enumerate(zip(nabla_w, nabla_b)):            
+        for i, (nw, nb) in enumerate(zip(nabla_w, nabla_b)):
             self.layers[i+1].weight -= (eta/mini_batch_length)*nw # update weight
             self.layers[i+1].bias   -= (eta/mini_batch_length)*nb # update bias
 
@@ -73,11 +74,15 @@ class Network(object):
     def evaluate(self, test_data):
         # guarda resultados passando o conjunto de teste pela rede
         # e assume o maior resultado como resposta da rede
-        test_results = [(np.argmax(self.feedforward(x)), np.argmax(y)) for (x,y) in test_data]
+        test_results = []
+        for i in test_data:
+            x,y = self.dataHandler.get_example(i)
+            test_results.append((np.argmax(self.feedforward(x)), np.argmax(y)))
+        # test_results = [(np.argmax(self.feedforward(x)), np.argmax(y)) for (x,y) in test_data]
         n = len(test_data)
         hit = sum(int(x==y) for (x,y) in test_results)
         # retorna taxa de acerto
-        return (hit/n)
+        return (float(hit)/float(n))
 
     def SGD(self, training_data, epochs, mini_batch_size, eta, val_data=None):
         # n = len(training_data)
@@ -86,15 +91,16 @@ class Network(object):
             # each mini_batch contains a list of indexes, each index corresponds
             # to an example
             mini_batches = self.dataHandler.get_mini_batches(minBatch_size=mini_batch_size)
-            for mini_batch in mini_batches:
+            for i,mini_batch in enumerate(mini_batches):
                 self.update_mini_batch(mini_batch, eta)
+                print "Epoch ", j, "mini batch ",i
 
             if j > 0 and j % self.save_rate == 0:
                 self.save_learning(self.checkpoints_dir + 'epoch' + str(j) + '.json')
 
             # se houver conjunto de teste, usa a rede atual para ver o hit rate
             if val_data:
-                print "Epoch {0} - hit rate: {1}".format(j, evaluate(val_data))
+                print "Epoch {0} - hit rate: {1}".format(j, self.evaluate(self.dataHandler.val_set))
             # senão, a epoch acabou e vamos para a próxima
             else:
                 print "Epoch {0} complete.".format(j)
@@ -112,4 +118,4 @@ class Network(object):
 
         ckpt = {"weights": weights, "biases": biases}
 
-        JsonHandler.write(ckpt, ckpt_name)
+        self.json_handler.write(ckpt, ckpt_name)
