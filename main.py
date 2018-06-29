@@ -10,8 +10,8 @@ import activationFunctions
 if __name__ == '__main__':
     EPOCHS = 100
     ETA = 0.02
-    PATH = "../mnist"
-    CKPT_DIR = "ckpt"
+    PATH = "mnist/"
+    CKPT_DIR = "./ckpt/"
     MBS = 5000 #mini_batch_size
 
     dataHandler = DataHandler(PATH)

@@ -54,7 +54,7 @@ class DataHandler():
         p, r = 0, minBatch_size
         self.mini_batches = []
         while(p < k):
-            if p+r > k:
+            if p+minBatch_size > k:
                 self.mini_batches.append(self.train_set[p:])
             else:
                 self.mini_batches.append(self.train_set[p:r])
