@@ -127,10 +127,10 @@ class Network(object):
     def load_learning(self, ckpt_file):
         # Loads the parameters from the checkpoint file
         params = json_handler.read(ckpt_file)
-        weights = params{'weights'}
-        biases = params{'biases'}
+        weights = params['weights']
+        biases = params['biases']
 
-        # Fills the layers with the saved learning
+        # Fills the layers with the
         for i in xrange(len(self.layers)):
             self.layers[i].weight = np.asarray(weights['l'+str(i)]).astype("float64")
             self.layers[i].bias = np.asarray(biases['l'+str(i)]).astype("float64")
