@@ -5,6 +5,7 @@ import numpy as np
 import random
 import layer
 from json_handler import JsonHandler
+from plot import plot
 
 
 class Network(object):
@@ -87,6 +88,8 @@ class Network(object):
         return (float(hit)/float(n))
 
     def SGD(self, training_data, epochs, mini_batch_size, eta, val_data=None):
+        x = []
+        y = []
         # n = len(training_data)
         # para cada epoch, embaralha o conjunto de treino, faz mini batches de tamanho definido, recalcula pesos e biases
         for j in xrange(epochs):
@@ -110,10 +113,15 @@ class Network(object):
             # se houver conjunto de teste, usa a rede atual para ver o hit rate
             if val_data != None:
                 print "Epoch {0} - hit rate: {1}".format(j, self.evaluate(val_data))
+                x.append(j)
+                y.append(self.evaluate(val_data))
+
             # senão, a epoch acabou e vamos para a próxima
             else:
                 print "Epoch {0} complete.".format(j)
 
+        if val_data:
+            plot(x,y)
     def save_learning(self, ckpt_name):
         # Dict to save the params from the checkpoint
         ckpt = {}
