@@ -19,15 +19,6 @@ class Digits:
                 cv2.circle(self.img,(x,y),5,(0,0,0),-1)
 
         elif event == cv2.EVENT_LBUTTONUP:
+            # print "TOIS"
             self.drawing = False
             cv2.circle(self.img,(x,y),5,(0,0,0),-1)
-
-def get_image():
-    img = np.zeros((128,128,1), np.uint8)
-    img.fill(255)
-    obj = Digits(img)
-    cv2.namedWindow('image')
-    cv2.setMouseCallback('image',obj.draw_circle)
-    imgp = cv2.resize(obj.img, (28,28))
-    imgp.reshape(784,1)
-    return imgp, obj        

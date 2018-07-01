@@ -11,13 +11,15 @@ def load_config():
     line = file[0]
     sizes = [int(s) for s in line.split(",")]
     learning_path = None
-    
+
     if sys.argv[1] == "-train":
         activation_name = file[-1]
         file = file[1:-1]
     elif sys.argv[1] == "-predict":
-        activation_name = file[-2]
+        activation_name = file[-2].split("\n")[0]
         learning_path = file[-1]
+        learning_path = learning_path.split("\n")[0]
+        print learning_path
         file = file[1:-2]
     else:
         print "Error! uknown option ", sys.argv[1]

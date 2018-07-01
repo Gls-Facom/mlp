@@ -26,7 +26,7 @@ class JsonHandler:
 
     def write(self, dictionary, file_name):
         """ Writes the dictionary content in a json file """
-        sucess = True
+        success = True
 
         try:
             file = open(file_name, "w+")
@@ -35,6 +35,6 @@ class JsonHandler:
         except:
             e = sys.exc_info()[0]
             print "Erro:", e
-            sucess = False
+            success = False
 
-        return sucess
+        return success
