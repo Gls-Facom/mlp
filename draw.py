@@ -16,9 +16,9 @@ class Digits:
 
         elif event == cv2.EVENT_MOUSEMOVE:
             if self.drawing == True:
-                cv2.circle(self.img,(x,y),5,(0,0,0),-1)
+                cv2.circle(self.img,(x,y),5,(255,255,255),-1)
 
         elif event == cv2.EVENT_LBUTTONUP:
             # print "TOIS"
             self.drawing = False
-            cv2.circle(self.img,(x,y),5,(0,0,0),-1)
+            cv2.circle(self.img,(x,y),5,(255,255,255),-1)

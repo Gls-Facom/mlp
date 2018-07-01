@@ -11,23 +11,16 @@ def load_config():
     line = file[0]
     sizes = [int(s) for s in line.split(",")]
     learning_path = None
-
-    if sys.argv[1] == "-train":
-        activation_name = file[-1]
-        file = file[1:-1]
-    elif sys.argv[1] == "-predict":
+    if len(file) > 3:
         activation_name = file[-2].split("\n")[0]
-        learning_path = file[-1]
-        learning_path = learning_path.split("\n")[0]
-        print learning_path
-        file = file[1:-2]
+        learning_path = file[-1].split("\n")[0]
     else:
-        print "Error! uknown option ", sys.argv[1]
-        return
+        activation_name = file[-2].split("\n")[0]
+    args = file[1].split(",")
+    epochs = int(args[0])
+    mbs = int(args[1])
+    eta = float(args[2])
 
-    args = []
-    for line in file:
-        args.append(float(line))
     if activation_name == "relu":
         activation = af.relu
     elif activation_name == "tanh":
@@ -36,5 +29,6 @@ def load_config():
         activation = af.leaky_relu
     else:
         activation = af.sigmoid
-
-    return sizes, args[0], args[1], args[2], activation, learning_path
+    if sys.argv[1] == "-train":
+        learning_path = None
+    return sizes, epochs, mbs, eta, activation, learning_path

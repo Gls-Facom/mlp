@@ -98,6 +98,7 @@ class Network(object):
 
             if j > 0 and j % self.save_rate == 0:
                 self.save_learning(self.checkpoints_dir + 'epoch' + str(j) + '.json')
+                print "Learning rate saved!"
 
             # se houver conjunto de teste, usa a rede atual para ver o hit rate
             if val_data != None:
@@ -129,7 +130,7 @@ class Network(object):
 
     def load_learning(self, ckpt_file):
         # Loads the parameters from the checkpoint file
-        params = self.json_handler.read(ckpt_file)        
+        params = self.json_handler.read(ckpt_file)
         weights = params['weights']
         biases = params['biases']
 

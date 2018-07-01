@@ -20,10 +20,9 @@ if __name__ == '__main__':
     network = Network(sizes, EPOCHS/10.0, CKPT_DIR, activation_function)
 
     if learning_path != None:
-        print "I'VE BEEN THROUGH THE DESERT ON A HORSE WITH NO ", learning_path
         network.load_learning(learning_path)
-        img = np.zeros((56,56,1), np.uint8)
-        img.fill(255)
+        img = np.zeros((128,128,1), np.uint8)
+        img.fill(0)
         obj = Digits(img)
         cv2.namedWindow('image')
         cv2.setMouseCallback('image',obj.draw_circle)
@@ -35,12 +34,13 @@ if __name__ == '__main__':
                 break
             elif k == ord('p'):
                 imgp = cv2.resize(obj.img, (28,28))
-                # print imgp.shape
                 imgp = imgp.reshape(784,1)/255.0
+                np.set_printoptions(threshold=np.inf)
                 print network.predict(imgp)
-
+                img.fill(0)
+            elif k == ord('c'):
+                img.fill(0)
                 # break
 
     else:
-        print "ENTÃO ME AJUDE A SEGURAR"
         network.SGD(training_data, int(EPOCHS), int(MBS), ETA, test_data)
