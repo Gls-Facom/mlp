@@ -6,6 +6,8 @@ import random
 import layer
 from dataHandler import DataHandler
 from json_handler import JsonHandler
+import math
+import cv2
 
 class Network(object):
 
@@ -134,3 +136,33 @@ class Network(object):
         for i in xrange(len(self.layers)):
             self.layers[i].weight = np.asarray(weights['l'+str(i)]).astype("float64")
             self.layers[i].bias = np.asarray(biases['l'+str(i)]).astype("float64")
+
+    def predict(self, x):
+        # x must have the same size of the input layer
+        self.feedforward(x)
+        return np.argmax(self.layers[-1].activation)
+
+    def weights_for_humans(self, img_dir):
+        # This function saves the weights in image format
+        # So humans can try to see the magic better
+        # But for now, it is only possible if the number of neurons in a layer
+        # is a square number
+        for i,layer in enumerate(self.layers[1:]):
+            k = len(layer.weight[0])
+            sqrt_k = int(math.sqrt(k))
+            # checks if it has a square size
+            if sqrt_k * sqrt_k == k:
+                img = np.zeros((k, 3), dtype="uint8")
+                for j,weight in enumerate(layer.weight):
+                    p = np.argwhere(weight >= 0)
+                    n = np.argwhere(weight < 0)
+
+                    img[p[:,0], :] = np.absolute(weight[p]) * np.array([0, 255, 0]) # green
+                    img[n[:,0], :] = np.absolute(weight[n]) * np.array([0, 0, 255]) # red
+
+                    if img_dir[-1] == '/':
+                        img_name = img_dir+"l"+str(i+1)+"w"+str(j)+".jpg"
+                    else:
+                        img_name = img_dir+'/'+"l"+str(i+1)+"w"+str(j)+".jpg"
+
+                    cv2.imwrite(img_name, img.reshape(sqrt_k, sqrt_k, 3) )

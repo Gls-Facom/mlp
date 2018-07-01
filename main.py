@@ -19,4 +19,5 @@ if __name__ == '__main__':
 
     sizes = [784, 16, 16, 10]
     network = Network(sizes, dataHandler, EPOCHS/10, CKPT_DIR, activationFunctions.sigmoid)
-    network.SGD(dataHandler, EPOCHS, MBS, ETA, True)
+    network.weights_for_humans("./")
+    # network.SGD(dataHandler, EPOCHS, MBS, ETA, True)
