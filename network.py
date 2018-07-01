@@ -6,6 +6,8 @@ import random
 import layer
 from json_handler import JsonHandler
 from plot import plot
+import math
+import cv2
 
 
 class Network(object):
@@ -110,6 +112,7 @@ class Network(object):
             else:
                 print "Epoch {0} complete.".format(j)
 
+        self.weights_for_humans("./weights")
         if val_data:
             plot(x,y)
 
