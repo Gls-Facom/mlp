@@ -16,10 +16,10 @@ class JsonHandler:
         try:
             params_file = open(file_name, "r")
             dictionary = json.loads(params_file.read())
-            params_file.close()       
+            params_file.close()
         except:
             e = sys.exc_info()[0]
-            print "Error: ", e 
+            print "Error: ", e
 
         return dictionary
 

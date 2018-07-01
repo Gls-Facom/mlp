@@ -4,14 +4,25 @@ import sys
 import activationFunctions as af
 
 def load_config():
-    f = open(sys.argv[1],"r")
+    f = open(sys.argv[2],"r")
     file = []
     for line in f:
         file.append(line)
     line = file[0]
     sizes = [int(s) for s in line.split(",")]
-    activation_name = file[-1]
-    file = file[1:-1]
+    learning_path = None
+    
+    if sys.argv[1] == "-train":
+        activation_name = file[-1]
+        file = file[1:-1]
+    elif sys.argv[1] == "-predict":
+        activation_name = file[-2]
+        learning_path = file[-1]
+        file = file[1:-2]
+    else:
+        print "Error! uknown option ", sys.argv[1]
+        return
+
     args = []
     for line in file:
         args.append(float(line))
@@ -24,5 +35,4 @@ def load_config():
     else:
         activation = af.sigmoid
 
-
-    return sizes, args[0], args[1], args[2], activation
+    return sizes, args[0], args[1], args[2], activation, learning_path

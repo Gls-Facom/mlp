@@ -28,13 +28,11 @@ def tanh(x, prime):
 
 #terminar a leaky relu para array !!!!!!!!!!!!!!!!!!!!!!!
 def leaky_relu(x, prime):
+    neg = np.argwhere(x<0)
     if not prime:
-        if x < 0:
-            return 0.01*x
-        else:
-            return x
+        x[neg[:,0]]==0.01 * x[neg[:,0]]
     else:
-        if x < 0:
-            return 0.01
-        else:
-            return 1
+        x[:] = 1
+        x[neg[:,0]] = 0.01
+
+    return x
